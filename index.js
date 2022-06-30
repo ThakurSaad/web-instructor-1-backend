@@ -12,7 +12,7 @@ app.use(express.json());
 // Yn3ZNHGmlQZPz9Wd
 // webUser
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri =
   "mongodb+srv://webUser:Yn3ZNHGmlQZPz9Wd@cluster0.ju9qt.mongodb.net/?retryWrites=true&w=majority";
 const client = new MongoClient(uri, {
@@ -32,7 +32,9 @@ async function run() {
 
     // full billing list
     app.get("/billing-list", async (req, res) => {
-      const billingList = await billingCollection.find().toArray();
+      const billingList = await (
+        await billingCollection.find().toArray()
+      ).reverse();
       res.send(billingList);
     });
 
@@ -41,7 +43,6 @@ async function run() {
     // add new billing
     app.post("/add-billing", async (req, res) => {
       const bill = req.body;
-      console.log(bill);
       const result = await billingCollection.insertOne(bill);
       res.send(result);
     });
@@ -51,7 +52,6 @@ async function run() {
     // update user on registration
     app.put("/registration", async (req, res) => {
       const email = req.query.email;
-      console.log(req.query, email);
       const user = req.body;
       const filter = { email: email };
       const options = { upsert: true };
@@ -71,6 +71,32 @@ async function run() {
         }
       );
       res.send({ result, token });
+    });
+
+    app.put("/add-billing", async (req, res) => {
+      const id = req.query.id;
+      const bill = req.body;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: bill,
+      };
+      const result = await billingCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+
+    // ------------------------------ DELETE API ------------------------------
+
+    // delete billing
+    app.delete("/delete-billing", async (req, res) => {
+      const id = req.query.id;
+      const deleteBilling = { _id: ObjectId(id) };
+      const result = await billingCollection.deleteOne(deleteBilling);
+      res.send(result);
     });
   } finally {
   }
