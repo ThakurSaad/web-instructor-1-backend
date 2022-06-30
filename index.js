@@ -25,7 +25,27 @@ async function run() {
   try {
     await client.connect();
     const usersCollection = client.db("webInstructor").collection("users");
+    const billingCollection = client.db("webInstructor").collection("billings");
     console.log("mongo connected");
+
+    // ------------------------------ GET API ------------------------------
+
+    // full billing list
+    app.get("/billing-list", async (req, res) => {
+      const billingList = await billingCollection.find().toArray();
+      res.send(billingList);
+    });
+
+    // ------------------------------ POST API ------------------------------
+
+    // add new billing
+    app.post("/add-billing", async (req, res) => {
+      const bill = req.body;
+      console.log(bill);
+      const result = await billingCollection.insertOne(bill);
+      res.send(result);
+    });
+
     // ------------------------------ PUT API ------------------------------
 
     // update user on registration
