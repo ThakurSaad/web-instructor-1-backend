@@ -113,15 +113,10 @@ async function run() {
       const id = req.params.id;
       const bill = req.body;
       const filter = { _id: ObjectId(id) };
-      const options = { upsert: true };
       const updateDoc = {
         $set: bill,
       };
-      const result = await billingCollection.updateOne(
-        filter,
-        updateDoc,
-        options
-      );
+      const result = await billingCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
 
