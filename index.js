@@ -49,11 +49,25 @@ async function run() {
 
     // full billing list
     app.get("/billing-list", verifyJWT, async (req, res) => {
-      const billingList = await billingCollection.find().toArray();
+      const page = parseInt(req.query.page);
+      const pageSize = parseInt(req.query.pageSize);
+      console.log(req.query, page, pageSize);
+      const cursor = billingCollection.find();
+
+      let billingList;
+      if (page || pageSize) {
+        billingList = await cursor
+          .skip(page * pageSize)
+          .limit(pageSize)
+          .toArray();
+      } else {
+        billingList = await cursor.toArray();
+      }
+
       res.send(billingList.reverse());
     });
 
-    // // number of billings
+    // count number of billings
     app.get("/billing-count", async (req, res) => {
       const billingCount = await billingCollection.estimatedDocumentCount();
       res.send({ billingCount });
