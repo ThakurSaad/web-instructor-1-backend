@@ -48,7 +48,7 @@ async function run() {
     // ------------------------------ GET API ------------------------------
 
     // full billing list
-    app.get("/billing-list", async (req, res) => {
+    app.get("/billing-list", verifyJWT, async (req, res) => {
       const billingList = await (
         await billingCollection.find().toArray()
       ).reverse();
@@ -58,7 +58,7 @@ async function run() {
     // ------------------------------ POST API ------------------------------
 
     // add new billing
-    app.post("/add-billing", async (req, res) => {
+    app.post("/add-billing", verifyJWT, async (req, res) => {
       const bill = req.body;
       const result = await billingCollection.insertOne(bill);
       res.send(result);
@@ -90,8 +90,8 @@ async function run() {
       res.send({ result, token });
     });
 
-    // edit billing
-    app.put("/update-billing/:id", async (req, res) => {
+    // Update billing
+    app.put("/update-billing/:id", verifyJWT, async (req, res) => {
       const id = req.params.id;
       const bill = req.body;
       const filter = { _id: ObjectId(id) };
@@ -110,8 +110,8 @@ async function run() {
     // ------------------------------ DELETE API ------------------------------
 
     // delete billing
-    app.delete("/delete-billing", async (req, res) => {
-      const id = req.query.id;
+    app.delete("/delete-billing/:id", verifyJWT, async (req, res) => {
+      const id = req.params.id;
       const deleteBilling = { _id: ObjectId(id) };
       const result = await billingCollection.deleteOne(deleteBilling);
       res.send(result);
