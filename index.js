@@ -68,7 +68,7 @@ async function run() {
     });
 
     // count number of billings
-    app.get("/billing-count", async (req, res) => {
+    app.get("/billing-count", verifyJWT, async (req, res) => {
       const billingCount = await billingCollection.estimatedDocumentCount();
       res.send({ billingCount });
     });
