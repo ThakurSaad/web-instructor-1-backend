@@ -49,10 +49,14 @@ async function run() {
 
     // full billing list
     app.get("/billing-list", verifyJWT, async (req, res) => {
-      const billingList = await (
-        await billingCollection.find().toArray()
-      ).reverse();
-      res.send(billingList);
+      const billingList = await billingCollection.find().toArray();
+      res.send(billingList.reverse());
+    });
+
+    // // number of billings
+    app.get("/billing-count", async (req, res) => {
+      const billingCount = await billingCollection.estimatedDocumentCount();
+      res.send({ billingCount });
     });
 
     // ------------------------------ POST API ------------------------------
