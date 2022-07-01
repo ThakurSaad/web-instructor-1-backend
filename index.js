@@ -21,6 +21,23 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
+// JWT
+function verifyJWT(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).send({ message: "Unauthorized access" });
+  }
+  const token = authHeader.split(" ")[1];
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+    if (err) {
+      return res.status(403).send({ message: "Forbidden access" });
+    } else {
+      req.decoded = decoded;
+      next();
+    }
+  });
+}
+
 async function run() {
   try {
     await client.connect();
@@ -73,8 +90,9 @@ async function run() {
       res.send({ result, token });
     });
 
-    app.put("/add-billing", async (req, res) => {
-      const id = req.query.id;
+    // edit billing
+    app.put("/update-billing/:id", async (req, res) => {
+      const id = req.params.id;
       const bill = req.body;
       const filter = { _id: ObjectId(id) };
       const options = { upsert: true };
